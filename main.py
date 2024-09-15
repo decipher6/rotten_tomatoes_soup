@@ -3,9 +3,10 @@ from bs4 import BeautifulSoup
 import time
 
 # URL of the Rotten Tomatoes page to scrape
-URL = 'https://www.rottentomatoes.com/top/bestofrt/'
+URL = 'https://editorial.rottentomatoes.com/guide/best-netflix-movies-to-watch-right-now/'
 
 def fetch_page(url):
+    """Fetches the content of the page using requests."""
     try:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -18,15 +19,18 @@ def fetch_page(url):
         return None
 
 def parse_page(html):
+    """Parses the page content to extract movie names and ratings."""
     soup = BeautifulSoup(html, 'html.parser')
     movies = []
-    # Adjust the selectors as needed based on the page's HTML structure
-    for item in soup.find_all('div', class_='media-body'):
-        title = item.find('a', class_='unstyled articleLink')
-        title = title.text.strip() if title else 'N/A'
-        critic_score = item.find('span', class_='tMeterScore')
-        critic_score = critic_score.text.strip() if critic_score else 'N/A'
-        movies.append({'title': title, 'critic_score': critic_score})
+
+    # Update the class names based on the actual page structure
+    for item in soup.find_all('div', class_='article_movie_title'):
+        title_tag = item.find('a')
+        title = title_tag.text.strip() if title_tag else 'N/A'
+        rating_tag = item.find_next_sibling('div', class_='tMeterScore')
+        rating = rating_tag.text.strip() if rating_tag else 'N/A'
+        movies.append({'title': title, 'rating': rating})
+    
     return movies
 
 def main():
@@ -34,7 +38,7 @@ def main():
     if html:
         movies = parse_page(html)
         for movie in movies:
-            print(f"Title: {movie['title']}, Critic Score: {movie['critic_score']}")
+            print(f"Title: {movie['title']}, Rating: {movie['rating']}")
         # Respectful scraping: Add delay between requests
         time.sleep(1)
 
