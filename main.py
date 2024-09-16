@@ -23,12 +23,15 @@ def parse_page(html):
     soup = BeautifulSoup(html, 'html.parser')
     movies = []
 
-    # Update the class names based on the actual page structure
-    for item in soup.find_all('div', class_='article_movie_title'):
-        title_tag = item.find('a')
+    # Locate the blocks containing both the title and rating
+    for item in soup.find_all('div', class_='col-sm-20 col-full-xs'):
+        title_tag = item.find('a')  # Movie title is in the <a> tag
         title = title_tag.text.strip() if title_tag else 'N/A'
-        rating_tag = item.find_next_sibling('div', class_='tMeterScore')
+
+        # The rating is inside the <span> with class tMeterScore
+        rating_tag = item.find('span', class_='tMeterScore')
         rating = rating_tag.text.strip() if rating_tag else 'N/A'
+
         movies.append({'title': title, 'rating': rating})
     
     return movies
