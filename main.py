@@ -4,7 +4,7 @@ import time
 import json                                 #save data as .json
 
 # URL of the Rotten Tomatoes page to scrape
-URL = 'https://editorial.rottentomatoes.com/guide/best-netflix-movies-to-watch-right-now/'
+URL = 'https://web.archive.org/web/20240916202321/https://editorial.rottentomatoes.com/guide/best-netflix-movies-to-watch-right-now/'
 
 def fetch_page(url):
     """Fetches the content of the page using requests."""
@@ -25,13 +25,17 @@ def parse_page(html):
     movies = []
 
     # Locate the blocks containing both the title and rating
-    for item in soup.find_all('div', class_='col-sm-20 col-full-xs'):
+    for item in soup.find_all('div', class_='col-sm-18 col-full-xs countdown-item-content'):
         #title_tag = item.find('a')  # Movie title is in the <a> tag
         #title = title_tag.text.strip() if title_tag else 'N/A'
 
         #get director's names
-        director_tag = item.find('p', class_='director')
-        director = director_tag.text.strip() if director_tag else 'N/A'
+        director_div = item.find('div', class_='info director')
+        if director_div:
+            director_tag = director_div.find('a')
+            director = director_tag.text.strip() if director_tag else 'N/A'
+        else:
+            director = 'N/A'
 
         # The rating is inside the <span> with class tMeterScore
         rating_tag = item.find('span', class_='tMeterScore')
